@@ -12,7 +12,7 @@ export default class RegisterScreen extends Component {
     pw: '',
     pw2: '',
     name: '',
-    msg: '',
+    msg: ' ',
     code: '',
     modalVisible: false
   };
@@ -82,8 +82,8 @@ export default class RegisterScreen extends Component {
             <TouchableHighlight style={styles.btn} onPress={this.register.bind(this)} underlayColor='#56CCF2'>
               <Text style={styles.btnText}>Register</Text>
             </TouchableHighlight>
+            <Text style={styles.msg}>{this.state.msg}</Text>
           </View>
-          <Text style={styles.msg}>{this.state.msg}</Text>
         </View>
       </View>
     );
@@ -93,17 +93,10 @@ export default class RegisterScreen extends Component {
     this.setState({modalVisible: visible});
   }
 
-  existEmptyField() {
-    if (this.state.phone === '' || this.state.email === '' || this.state.name === '' || this.state.pw === '' || this.state.pw2 === '') {
-      return true;
-    }
-    return false;
-  }
-
   register() {
     console.log(this.state);
     if(this.verifyForm()) {
-      fetch(server, {
+      fetch(server + '/register', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -137,7 +130,7 @@ export default class RegisterScreen extends Component {
     if (this.state.code === '') {
       return;
     }
-    fetch(server + '/users/' + this.state.phone, {
+    fetch(server + '/register/' + this.state.phone, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -158,6 +151,10 @@ export default class RegisterScreen extends Component {
           this._setModalVisible(false);
           this.props.navigation.navigate('Login', {status: 'Account registration successful!'});
         }
+        else {
+          this.setState({msg: 'unknown server response'});
+          console.log(resJson.msg);
+        }
       }).catch(error => {
         console.log(error);
     });
@@ -168,7 +165,7 @@ export default class RegisterScreen extends Component {
   }
 
   verifyForm() {
-    if (this.existEmptyField()) {
+    if (this.state.phone === '' || this.state.email === '' || this.state.name === '' || this.state.pw === '' || this.state.pw2 === '') {
       this.setState({msg: 'all fields must be filled'});
       return false;
     }
@@ -178,6 +175,15 @@ export default class RegisterScreen extends Component {
     }
     if (this.state.pw !== this.state.pw2) {
       this.setState({msg: 'passwords don\'t match'});
+      return false;
+    }
+    let pw = this.state.pw;
+    if (pw.length < 8) {
+      this.setState({msg: 'password needs to be at least 8 characters long'});
+      return false;
+    }
+    if (pw.search('[0-9]') === -1 || pw.search('[a-z]') === -1 || pw.search('[A-Z]') === -1) {
+      this.setState({msg: 'password needs to contain a number, a lowercase letter, and an uppercase letter'});
       return false;
     }
     return true;

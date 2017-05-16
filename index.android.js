@@ -4,10 +4,12 @@ import {StackNavigator} from 'react-navigation';
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import HomeScreen from './screens/HomeScreen';
 
 const DeliveryApp = StackNavigator({
   Login: {screen: LoginScreen},
-  Register: {screen: RegisterScreen}
+  Register: {screen: RegisterScreen},
+  Home: {screen: HomeScreen}
 });
 
 AppRegistry.registerComponent('DeliveryApp', () => DeliveryApp);
